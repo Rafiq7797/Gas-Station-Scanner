@@ -72,5 +72,5 @@ if uploaded_file and api_key:
                 st.subheader("📊 Calculated Pricing Breakdown")
                 st.table(processed_data)
                 
-            Exception as e:
+            except Exception as e:
                 st.error(f"Could not parse the invoice automatically. Error: {e}")

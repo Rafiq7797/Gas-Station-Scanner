@@ -19,8 +19,8 @@ api_key = st.secrets.get("GEMINI_API_KEY") or st.sidebar.text_input("Enter Googl
 
 if api_key:
     genai.configure(api_key=api_key)
-    # Using Gemini Flash for fast multimodal extraction
-    model = genai.GenerativeModel('gemini-2.5-flash')
+    # Updated to use the latest Gemini 3.8 Flash model
+    model = genai.GenerativeModel('gemini-3.8-flash')
 else:
     st.warning("Please enter your Google Gemini API Key in the sidebar to start scanning invoices.")
 

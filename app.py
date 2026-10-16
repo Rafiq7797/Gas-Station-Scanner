@@ -54,7 +54,6 @@ if uploaded_file and api_key:
                         "Quantity / Gallons": qty,
                         "Total Cost ($)": round(total, 2),
                         "Unit Cost ($)": round(unit_cost, 3),
-                        # Default suggested selling price with a 15% starting margin
                         "Selling Price ($)": round(unit_cost / 0.85, 2) if unit_cost > 0 else 0.0
                     })
                 
@@ -75,4 +74,33 @@ if 'invoice_items' in st.session_state:
     edited_df = st.data_editor(
         df,
         column_config={
-            "Selling
+            "Selling Price ($)": st.column_config.NumberColumn(
+                "Selling Price ($)",
+                help="Type your actual retail selling price here",
+                min_value=0.0,
+                format="$%.2f"
+            ),
+            "Unit Cost ($)": st.column_config.NumberColumn("Unit Cost ($)", format="$%.3f", disabled=True),
+            "Total Cost ($)": st.column_config.NumberColumn("Total Cost ($)", format="$%.2f", disabled=True),
+            "Quantity / Gallons": st.column_config.NumberColumn("Quantity / Gallons", disabled=True),
+            "Item / Fuel": st.column_config.TextColumn("Item / Fuel", disabled=True)
+        },
+        disabled=["Item / Fuel", "Quantity / Gallons", "Total Cost ($)", "Unit Cost ($)"],
+        hide_index=True,
+        num_rows="fixed"
+    )
+    
+    # Calculate Profits & Margins dynamically based on user inputs
+    edited_df["Profit / Unit ($)"] = edited_df["Selling Price ($)"] - edited_df["Unit Cost ($)"]
+    edited_df["Margin (%)"] = edited_df.apply(
+        lambda row: round((row["Profit / Unit ($)"] / row["Selling Price ($)"]) * 100, 2) 
+        if row["Selling Price ($)"] > 0 else 0.0, 
+        axis=1
+    )
+    
+    # Display Summary Results
+    st.subheader("📈 Final Margin & Profit Summary")
+    
+    # Format and present summary table
+    summary_df = edited_df[["Item / Fuel", "Unit Cost ($)", "Selling Price ($)", "Profit / Unit ($)", "Margin (%)"]]
+    st.dataframe(summary_df, use_container_width=True)
